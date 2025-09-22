@@ -11,7 +11,7 @@ export default function AppNavbar() {
         <button></button>
 
         <Avatar>
-          <AvatarImage src="https://github.com/shadcn.png" />
+          <AvatarImage src="https://github.com/AIEraDev.png" />
           <AvatarFallback>CN</AvatarFallback>
         </Avatar>
       </div>
