@@ -1,13 +1,16 @@
 import type React from "react";
 // import { createClient } from "@/lib/supabase/client";
 import { useState } from "react";
+import { toast } from "sonner";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Button } from "~/components/ui/button";
 import { Link, useNavigate } from "react-router";
+import { supabase } from "~/lib/supabase/client";
 
+// https://react-hot-toast.com/
 export default function SignUpPage() {
   const [formData, setFormData] = useState({
     careHomeName: "",
@@ -16,25 +19,21 @@ export default function SignUpPage() {
     password: "",
     confirmPassword: "",
   });
-  const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  //   const router = useRouter();
   const navigate = useNavigate();
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    const supabase = createClient();
     setIsLoading(true);
-    setError(null);
 
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
+      toast("Passwords do not match");
       setIsLoading(false);
       return;
     }
 
     if (formData.password.length < 6) {
-      setError("Password must be at least 6 characters");
+      toast("Password must be at least 6 characters");
       setIsLoading(false);
       return;
     }
@@ -51,14 +50,15 @@ export default function SignUpPage() {
           },
         },
       });
-      if (error) throw error;
       navigate("/login");
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : "An error occurred");
+      toast(error instanceof Error ? error.message : "An error occurred");
     } finally {
       setIsLoading(false);
     }
   };
+
+  console.log(formData);
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
@@ -67,11 +67,13 @@ export default function SignUpPage() {
           <h1 className="text-4xl font-bold text-indigo-900 mb-2">CarePlanner</h1>
           <p className="text-muted-foreground">Get started with your care home</p>
         </div>
+
         <Card>
           <CardHeader>
             <CardTitle className="text-2xl">Create an account</CardTitle>
             <CardDescription>Start planning activities and meals for your residents</CardDescription>
           </CardHeader>
+
           <CardContent>
             <form onSubmit={handleSignUp}>
               <div className="flex flex-col gap-4">
@@ -93,20 +95,8 @@ export default function SignUpPage() {
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="confirmPassword">Confirm Password</Label>
-                  <Input
-                    id="confirmPassword"
-                    type="password"
-                    required
-                    value={formData.confirmPassword}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        confirmPassword: e.target.value,
-                      })
-                    }
-                  />
+                  <Input id="confirmPassword" type="password" required value={formData.confirmPassword} onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })} />
                 </div>
-                {error && <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">{error}</div>}
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? "Creating account..." : "Create account"}
                 </Button>
